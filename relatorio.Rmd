@@ -1,7 +1,7 @@
 ---
 title: "Pontos Interiores + Simplex"
 author: "Pedro Loes e Felipe Sadock"
-date: "17/06/2021"
+date: "20/06/2021"
 output: pdf_document
 ---
 
@@ -237,7 +237,7 @@ grid.raster(img)
 
 * Dimensões de __30__ até __60__ apresentaram custo entre __100__ e __300__ iterações.
 
-* Dimensões superiores a __60__ até __60__ apresentaram custo computacional de __300__ até __500__ iterações.
+* Dimensões superiores a __60__ apresentaram custo computacional de __300__ até __600__ iterações.
 
 ### __Mapa de Calor Iterações Pontos Iteriores__
 
@@ -258,7 +258,7 @@ grid.raster(img)
 
 * Dimensões de __30__ até __60__ apresentaram custo entre __10__ e __15__ iterações.
 
-* Dimensões superiores a __60__ apresentaram custo computacional de __10__ até __20__ iterações.
+* Dimensões superiores a __60__ apresentaram custo computacional de __15__ até __20__ iterações.
 
 ### __Comparação de Custo Computacional__
 
@@ -268,7 +268,7 @@ grid.raster(img)
 
 * Dimensões de __60__ até __100__ variáveis e restrições, o Simplex apresentou custo de __20__ até __25__ vezes maior.
 
-* Pontos Interiores apresentou maior mistura de custos, destaque para correlação com número de variáveis. Simplex apresentou regiões mais bem definidas, com poucas observações discrepantes e correlação semelhante com as duas variáveis.
+* Pontos Interiores apresentou maior mistura de custos, com destaque para correlação positiva da iteração com aumento do número de variáveis. Simplex apresentou regiões mais bem definidas, com poucas observações discrepantes e correlação semelhante com as duas variáveis.
 
 
 ### __Mapa de Calor Diferença de Máximos__
@@ -292,31 +292,71 @@ grid.raster(img)
 
 * Dimensões superiores a __10__ restrições apresentaram dispersão aleatória de diferenças.
 
-* A amplitude de diferenças apresentou variação $[10^{-10}, 10^{-4}]$.
+* A amplitude de diferenças apresentou variação $[10^{-11}, 10^{-4}]$.
 
-* A magnitude entre a maior e a menor diferença foi da ordem de $10^{-6}$.
+* A magnitude entre a maior e a menor diferença foi da ordem de $10^{-7}$.
 
 
-### __Conclusão__
+### __Comapração de Máximos__
 
-* O algoritmo Pontos Interiores apresentou melhor performance na análise do custo computacional. Apesar do algoritmo Simplex apresentar máximos maiores na ordem de até $10^{-4}$, apenas em problemas que demandam precisão científica seu custo computacional elevado poderia ser justificado.
+
+* O algoritmo Simplex apresentou máximos superiores na ordem de até $10^{-4}$ em relação a performance do algoritmo de Pontos Iteriores.
+
+* A maioria, ou 90% das diferenças encontradas, foram iguais ou inferiores $10^{-6}$. Tal fato indica que apenas em problemas que demandam extrema precisão científica o máximo encontrado pelo algoritmo de Pontos Interiores poderia ser considerado um erro na precisão da solução.
 
 ## __4. Método Híbrido__
 
+* A ideia fundamental do método híbrido é unificar as qualidades dos métodos Pontos Interiores e Simplex. Para tanto é preciso chavear os dois métodos. 
+
+### __Descrição__
+
+* O algoritmo começa com o algoritmo de Pontos Interiores para aproximar o vértice que máximiza a função objetivo. Como o Pontos Interiores só procura soluções em pontos internos do politopo, é realizado um chaveamento para projetar o último ponto interior em um vértice do politopo. Finalmente o algoritmo Simplex é iniciado a partir deste ponto. 
+
+### __Funcionamento__
+
+* O chaveamento foi realizado arredondando para cima as coordenados do último ponto interior para ser o $x_0$ do Simplex.
+
+### __Exemplo__
+
+* Foi utilizado o mesmo problema dos algoritmos Simplex e Pontos Interiores para comparação das mecânicas e resultados. O mesmo gráfico em terceira dimensão foi utilizado para ilustrar a mecânica do algoritmo Híbrido. A única diferença foi que a reta na cor verde representa o algoritmo Pontos Interiores e o ponto na cor verde representa o Simplex.
 
 ```{r warning=F, message=F, error=F, echo=F}
 
+# Carrega imagem
+img <- readPNG("imagens/hibrido_sol.png")
 
+# Imprime imagem
+grid.raster(img)
 
 ```
 
+* O algoritmo Pontos Interiores gasta 2 iterações para aproximar o vértice de máximo.
+
+* Os pontos x = 1.97 e y = 5.82 são arredondados para cima.
+
+* O algoritmo Simplex foi iniciado nos pontos x = 2 e y = 6.
+
+* Neste ponto o algoritmo já apresenta solução de máximo sem gastar iterações. 
 
 ## __5. Simulação Híbrido__
 
-```{r warning=F, message=F, error=F, echo=F}
+* A simulação do método híbrido foi realizada com o mesmo tamanho de problemas que as simulações realizadas para o algoritmo Simplex e o algoritmo Pontos Interiores.
 
+```{r warning=F, message=F, error=F, echo=F, out.width='100%', fig.align='center'}
 
+# Carrega imagem
+img <- readPNG("imagens/hibrido_sim.png")
+
+# Imprime imagem
+grid.raster(img)
 
 ```
 
+
 ## __6. Referências__
+
+* Dantzig, George Bernard, "The Simplex Method" Santa Monica, CA: RAND Corporation, 1956. 
+
+* A. Vannelli, "Teaching large-scale optimization by an interior point approach" in IEEE Transactions on Education, vol. 36, no. 1, pp. 204-209, Feb. 1993, doi: 10.1109/13.204847.
+
+
