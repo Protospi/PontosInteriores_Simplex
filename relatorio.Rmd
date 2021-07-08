@@ -137,7 +137,7 @@ grid.raster(img)
 
 ### __Descrição__
 
-* Para inicializar o algoritmo é escolhido um vetor $X_0$ arbitrariamente definido diferente do vetor nulo é uma variável $\gamma \in [0,1]$ que controla a distância percorrida em cada passo.
+* Para inicializar o algoritmo é escolhido um vetor $X_0$ arbitrariamente definido diferente do vetor nulo e uma variável $\gamma \in [0,1]$ que controla a distância percorrida em cada passo.
 
 * Quando o algoritmo é iniciado é calculada a distância do ponto em relação a cada restrição. A parte mais importante do algoritmo é o uso da álgebra linear para calcular a direção que gera maior crescimento monótono da função objetivo utilizando a técnica de derivada direcional.
 
@@ -149,7 +149,7 @@ grid.raster(img)
   
 * __Passo 2__:
   + Calcular a folga, ou seja, a distância do ponto em relação à cada restrição indicando __k = k + 1__.
-  + $v^k \hspace{0.2 cm} = \hspace{0.2 cm} b - Ax^k \hspace{0.2 cm} = \hspace{0.2 cm} [v_1^k, v_1^k, ..., v_m^k]^T$
+  + $v^k \hspace{0.2 cm} = \hspace{0.2 cm} b - Ax^k \hspace{0.2 cm} = \hspace{0.2 cm} [v_1^k, v_2^k, ..., v_m^k]^T$
 
 * __Passo 3__:
   + Calcular a matriz diagonal.
@@ -297,10 +297,10 @@ grid.raster(img)
 * A magnitude entre a maior e a menor diferença foi da ordem de $10^{-7}$.
 
 
-### __Comapração de Máximos__
+### __Comparação de Máximos__
 
 
-* O algoritmo Simplex apresentou máximos superiores na ordem de até $10^{-4}$ em relação a performance do algoritmo de Pontos Iteriores.
+* O algoritmo Simplex apresentou máximos superiores na ordem de até $10^{-4}$ em relação a performance do algoritmo de Pontos Interiores.
 
 * A maioria, ou 90% das diferenças encontradas, foram iguais ou inferiores $10^{-6}$. Tal fato indica que apenas em problemas que demandam extrema precisão científica o máximo encontrado pelo algoritmo de Pontos Interiores poderia ser considerado um erro na precisão da solução.
 
@@ -310,7 +310,7 @@ grid.raster(img)
 
 ### __Descrição__
 
-* O algoritmo começa com o algoritmo de Pontos Interiores para aproximar o vértice que máximiza a função objetivo. Como o Pontos Interiores só procura soluções em pontos internos do politopo, é realizado um chaveamento para projetar o último ponto interior em um vértice do politopo. Finalmente o algoritmo Simplex é iniciado a partir deste ponto. 
+* O algoritmo começa com o algoritmo de Pontos Interiores para aproximar o vértice que maximiza a função objetivo. Como o Pontos Interiores só procura soluções em pontos internos do politopo, é realizado um chaveamento para projetar o último ponto interior em um vértice do politopo. Finalmente o algoritmo Simplex é iniciado a partir deste ponto. 
 
 ### __Funcionamento__
 
