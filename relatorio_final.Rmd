@@ -1,7 +1,7 @@
 ---
-title: "Pontos Interiores vs Simplex"
+title: "Simplex e Pontos Interiores"
 author: "Pedro Loes e Felipe Sadock"
-date: "20/06/2021"
+date: "09/07/2021"
 output: pdf_document
 ---
 
@@ -19,92 +19,10 @@ body {
 text-align: justify}
 </style>
 
-
-  _O método de otimização Simplex possui a característica de encontrar a solução exata em problemas de programação linear, porém, em problemas de grande dimensão, o algoritmo apresenta alto custo computacional para atingir o máximo global. O método de optimização Pontos Interiores apresenta baixo custo computacional em problemas de grande dimensão, mas apresenta resultados que apenas aproximam a solução ótima. O método Simplex Revisado apresenta baixo custo computacional em relação ao Simplex tradicional mas pode sofrer problemas de degeneração. O objetivo deste projeto foi comparar o funcionamento destes 3 algoritmos por meio de simulações em diversos cenários para identificar suas vantagens e desvantagens indicando as situações em que devem ser preferidos._
-
-
-## __Introdução__
-
-* O projeto foi dividido em 5 etapas que objetivam explorar a performance, número de iterações e custo computacional dos algoritmos de otimização Simplex, Simplex Revisado e Pontos Interiores, da biblioteca scipy.linprog.
-
-* 0. Simulação
-  * O desenho da simulação e suas particularides foram descritos e o seu funcionamento foi ilustrado.
-* 1. Número de Iterações
-  * A primeira comparação consistiu em ilustrar a peformance por meio de um mapa de calor para avaliar o número de iterações utilizadas por cada algoritmo.
-* 2. Diferença de Máximos
-  * A segunda comparação consistiu em ilustrar a eficácia por meio de uma mapa de calor para avaliar a diferença de máximos do algoritmo Pontos Interiores em comparação com os algoritmos Simplex e Simplex revisado.
-* 3. Custo Computacional 
-  * A terceira comparação consistiu em ilustrar a eficiencia por meio de uma mapa de calor para avaliar o custo computacional de cada algoritmo.
-* 4. Conclusões
-  * Finalmente foram apresentadas sugestões para uso dos algoritmos em função dos cenários.
-  
-## __0. Simulações__
-
-* A função optimizar foi definida para amostrar o problema com __V__ variáveis, $V \in [2, 1000]$ e __R__ restrições, $R \in [1, 1000]$, definir limites das variáveis, executar os 3 métodos de optimização e calcular o custo computacional. Nove matrizes de dimensão $M_{1000, 1000}$ foram geradas para armazenar os resultados das 500000 simulações. Dois laços foram utilizados para combinar variáveis e restrições. Para padronizar o experimento foi adotado o critério de número de restrições menor ou igual ao número de variáveis. Por exemplo, simulações com 2 variáveis e 1000 restrições não foram consideradas devido à redundância de cortes no politopo.
-
-* Passos da Simulação:
-  1. Sorteio das amostras em intervalos de inteiros aleatórios
-  2. Definição dos limites das variáveis
-  3. Executa as 3 otimizações:
-  4. Os resultados das simulações são recuperados em matrizes $M_{(V,R)}$ com:
-  5. Laço para combinar dimensões dos problemas:
-  
-```{r warning=F, message=F, error=F, eval=F}
-# Define função optimizar 
-def optimizar(V, R):
-  A = np.random.randint(1000, size=(R * V)).reshape((R, V))
-  b = np.random.randint(1000, 10000, size=(R))
-  c = np.random.randint(1, 1000, size=(V)) * -1
-  limites_x = [(0, superior) for superior in np.random.randint(1, 100, size=(V))]
-  
-  inicio_s = time.time()
-  s = linprog(c, A_ub=A, b_ub=b, bounds=(limites_x),  method='simplex')
-  fim_s = time.time()
-  s_t = fim_s - inicio_s
-  inicio_rs = time.time()
-  rs = linprog(c, A_ub=A, b_ub=b, bounds=(limites_x),  method='revised simplex')
-  fim_rs = time.time()
-  rs_t = fim_rs - inicio_rs
-  inicio_pi = time.time()
-  pi = linprog(c, A_ub=A, b_ub=b, bounds=(limites_x),  method='interior-point')
-  fim_pi = time.time()
-  pi_t = fim_pi - inicio_pi
-  
-  return(s.nit, -1 * s.fun, s_t, pi.nit, -1 * pi.fun, pi_t, rs.nit, rs.fun, rs_t)
-  
-# Declara matrizes de resultados
-pi_i = np.zeros(shape=(V, V)); pi_f = np.zeros(shape=(V, V)); pi_c = np.zeros(shape=(V, V))
-s_i = np.zeros(shape = (V, V)); s_f = np.zeros(shape = (V, V)); s_c = np.zeros(shape = (V, V))
-rs_i = np.zeros(shape = (V, V)); rs_f = np.zeros(shape = (V, V)); rs_c = np.zeros(shape = (V, V))
-
-# Declara número de variáveis para simulação
-V = 1000
-
-# Laço para simulação de variáveis e restrições
-for v in np.arange(2, V):
-  r = 1
-  while(r <= v):
-    s_i[v, r], s_f[v, r], s_c[v, r], pi_i[v, r], pi_f[v, r], \
-    pi_c[v, r], rs_i[v, r], rs_f[v, r], rs_c[v, r] = optimizar(v, r)
-    r += 1
-```
- 
-## __1.Número de Iterações__ 
-
-* Os números de iterações gastas por cada algoritmo para cada cenário foram calculados e os valores foram armazenados em matrizes $M_{V,R}$ para produção de mapas de calor que facilitassem a análise de padrões.
-
-* Os mapas de calor foram desenhados com o número de variáveis no eixo horizontal e o número de restrições no eixo vertical.
-
-* Uma legenda com a escala gradiente nas cores azul, cinza e vermelho foi colocada abaixo do eixo vertical representado o eixo da terceira dimensão do gráfico que exibe a medida do número de iterações.
-
-* O fundo do gráfico foi colorido com a cor preta para representar os cenários não simulados devido a padronização escolhida.
-
-### __Método Simplex__
-
-```{r warning=F, message=F, error=F, echo=F, fig.align='center',  out.width='95%'}
+```{r warning=F, message=F, error=F, echo=F, fig.align='center',  out.width='35%'}
 
 # Carrega imagem
-img <- readPNG("imagens/simplex_sol.png")
+img <- readPNG("imagens/alvo.png")
 
 # Imprime imagem
 grid.raster(img)
@@ -112,8 +30,92 @@ grid.raster(img)
 ```
 
 
+  _O método de otimização Simplex possui a característica de encontrar a solução exata em um problema de programação linear, porém, em problemas de grande dimensão, o algoritmo apresenta alto custo computacional para atingir a convergência. O método de optimização Pontos Interiores apresenta baixo custo computacional em problemas de grande dimensão, mas apresenta resultados que apenas aproximam a solução ótima. O objetivo deste projeto foi ilustrar o funcionamento desses dois algoritmos e compará-los por meio de simulações para identificar suas vantagens e desvantagens._
 
-### __Método Simplex Revisado__
+
+## __0. Introdução__
+
+* O projeto foi dividido em 4 etapas que objetivam explicar e explorar os métodos de Otimização Simplex e Pontos Interiores comparando suas performances.
+  1. Método Simplex
+    * Desenvolvimento de uma explicação geral, descrição do funcionamento matemático do método, exemplo simples resolvido passo a passo e mecânica da convergência ilustrada graficamente.
+  2. Método Pontos Interiores
+    * Desenvolvimento de uma explicação geral, descrição do funcionamento matemático do método, exemplo simples resolvido passo a passo e mecânica da convergência ilustrada graficamente.
+  3. Simulação Simplex e Pontos Interiores 
+    * Desenvolvimento de simulação de todas as combinações de __100__ variáveis com __100__ restrições aleatórias e exibição dos resultados ilustrados em gráficos de número de iterações e diferença entre máximos. 
+  4. Referências Bibliográficas
+    * Indicação de todo o material consultado para o desenvolvimento do projeto.
+  
+* A biblioteca Scipy da linguagem Python foi utilizada para implementar os algoritmos Simplex e Pontos Interiores. Os gráficos foram produzidos com as bibliotecas Plotly e Seaborn da linguagem Python. O relatório no formato pdf foi produzido no IDE RStudio com a linguagem RMarkdown.   
+   
+
+## __1. Método Simplex__
+
+* A ideia básica do simplex é caminhar pelos vértices do politopo de restrições passando de uma base para outra com a utilização de variáveis de folga para encontrar o máximo da função objetivo.
+
+### __Descrição__
+
+* Cada base corresponde a um valor para a função. Um deles é o valor máximo da função __F__. A próxima base será escolhida de forma que o valor da função __F__ não seja menor do que o anterior.
+
+* Uma variável é chamada de variável básica de uma equação se entrar nesta equação com um coeficiente de um e não entrar em outro sistema de equações. Se cada equação tem uma variável básica, pode-se dizer que o sistema tem uma base.
+
+### __Funcionamento__
+
+* Para alternar as bases são usadas tabelas. Cada linha da tabela é equivalente a uma equação do sistema. O método consiste em escolher a coluna com um coeficiente positivo de forma iterativa para obter um valor da função objetivo que não seja inferior aos seus antecessores.
+
+* Para os coeficientes positivos da coluna selecionada, observa-se o coeficiente $\boldsymbol{\theta}$ e a linha com valor mínimo é selecionada. Quando não existirem mais coeficientes positivos na linha da função o valor máximo pode ser calculado.
+
+
+### __Exemplo__
+
+* Para ilustrar o funcionamento do algoritmo foi escolhido um problema de __2º dimensão__ representado pelas variáveis $x_1$ e $x_2$ e restringido por __3__ desigualdades do tipo $\le$ representadas pela matriz __A__ e vetor __b__ de valores das restrições. 
+
+* __Função Objetivo:__
+  * $f( \hspace{0.1 cm}x_1, \hspace{0.1 cm} x_2 \hspace{0.1 cm}) \hspace{0.2 cm} = \hspace{0.2 cm} 3x_1 + 5x_2$
+    
+* __Matriz de Restrições:__    
+  * $A = \begin{bmatrix} 3x_1+2x_2  \\ x_1  \\ x_2  \end{bmatrix}$
+    
+* __Vetor Resposta:__    
+  * $b = \begin{bmatrix} 18 \\ 4 \\ 6 \end{bmatrix}$
+    
+* __Domínio__:
+  * $x_1 \hspace{0.1 cm} \ge \hspace{0.1 cm} 0$
+  * $x_2 \hspace{0.1 cm} \ge \hspace{0.1 cm} 0$
+    
+    
+* Os passos da evolução do algoritmo em direção a convergência do máximo foram representados no formato de tabelas para ilustrar a caminhada pelas bases geradas com a adição de __3__ variáveis de folga (slack) $S_1$, $S_2$ e $S_3$.    
+    
+* __Iteração 1__
+  * Verifica-se que a variável $x_2$ apresenta menor $\theta$ e calcula $f(\hspace{0.1 cm} x_1 = 0 \hspace{0.1 cm}, \hspace{0.1 cm} x_2 = 0 \hspace{0.1 cm}) = 0$.
+  * A base inicial será $S_1 = 18$, $S_2 = 4$ e $S_3 = 6$.
+  * Transformando $S_3$ para $S_3 = 0$ as bases passam a ser $x_2=6$, $S_1=6$ e $S2=4$.
+  * $f( \hspace{0.1 cm} x_1 = 0 \hspace{0.1 cm} , \hspace{0.1 cm} x_2 = 6) = 30$. 
+
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+![](imagens/simplex_passo1.png){width=300px, height=240px}
+
+* __Iteração 2__
+  * Verifica-se que a variável $x_1$ apresenta menor $\theta$
+  * Transformando a variável $S_1$ para $S_1 = 0$ as bases passam a ser $x_1=2$, $x_2=6$ e $S_2=2$.
+  * $f( \hspace{0.1 cm} x_1 = 2 \hspace{0.1 cm} , \hspace{0.1 cm} x_2 = 6 \hspace{0.1 cm} ) = 36$.
+
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+![](imagens/simplex_passo2.png){width=310px, height=340px}
+
+* __Resultado__
+  + A primeira e segunda colunas apresentaram valores pivôs na primeira e terceira linhas indicando a posição no vértice __(2,6)__ como solução de máximo da função objetivo. 
+
+### __Convergência__
+
+* Para ilustrar o caminho do algoritmo Simplex no espaço de busca foi utilizado o pacote Plotly que permitiu a construção de uma figura com 3 dimensões.
+
+* A variável $x_1$ do problema foi representada pelo eixo __x__ do gráfico, a variável $x_2$ do problema foi representada pelo eixo __y__ do gráfico e a imagem da função objetivo foi representada pelo eixo __z__ do gráfico.
+
+* O __politopo__ de segunda dimensão formado pelas restrições do problema foi representado por __semiplanos__ na cor vermelha que se expandem sobre o eixo __z__ onde a função objetivo assume valores correspondentes à posição dos vértices do politopo.
+
+* O caminho do algoritmo pelos vértices do politopo para convergência do valor máximo da função objetivo foi representado pelos círculos na cor verde verde.
 
    
 ```{r warning=F, message=F, error=F, echo=F, fig.align='center',  out.width='95%'}
@@ -126,8 +128,72 @@ grid.raster(img)
 
 ```
 
+* O algoritmo inicia no infinito considerando a função objetivo sem restrições.
 
-### __Método Pontos Interiores__
+* 1º Atinge o vértice __x = 0__ e __y = 6__ com __f(x, y) = 30__.
+
+* 2º Atinge o vértice __x = 2__ e __y = 6__ convergindo para __max f(x, y) = 36__.
+
+* O funcionamento do algoritmo animado pode ser visualizado no link:
+  + [\textcolor{blue}{https://colab.research.google.com}](https://colab.research.google.com/drive/1ekh8LM5FRlb4nAovQX-pHYn3mT_oWdg6?usp=sharing)
+
+## __2. Método Pontos Interiores__
+
+* A ideia principal do algoritmo de Pontos Interiores é caminhar internamente no politopo nas melhores direções sem violar a fronteira de restrições com intuito de convergir rapidamente para um valor próximo do máximo da função objetivo.
+
+### __Descrição__
+
+* Para inicializar o algoritmo é escolhido um vetor $X_0$ arbitrariamente definido diferente do vetor nulo é uma variável $\gamma \in [0,1]$ que controla a distância percorrida em cada passo.
+
+* Quando o algoritmo é iniciado é calculada a distância do ponto em relação a cada restrição. A parte mais importante do algoritmo é o uso da álgebra linear para calcular a direção que gera maior crescimento monótono da função objetivo utilizando a técnica de derivada direcional.
+
+### __Funcionamento__
+
+* __Passo 1__:
+  + Escolher $x^0$ diferente do vetor nulo para ser o ponto inicial dentro do politopo e escolher uma variável $\gamma$ de forma que:
+  + $Ax^0 < b \hspace{0.3 cm} e \hspace{0.3 cm} 0 < \gamma < 1$
+  
+* __Passo 2__:
+  + Calcular a folga, ou seja, a distância do ponto em relação à cada restrição indicando __k = k + 1__.
+  + $v^k \hspace{0.2 cm} = \hspace{0.2 cm} b - Ax^k \hspace{0.2 cm} = \hspace{0.2 cm} [v_1^k, v_1^k, ..., v_m^k]^T$
+
+* __Passo 3__:
+  + Calcular a matriz diagonal.
+  + $D_k \hspace{0.2 cm} = \hspace{0.2 cm} diag \hspace{0.2 cm}[\frac{1}{v_1^k}, \frac{1}{v_2^k}, ..., \frac{1}{v_m^k} ]$
+  
+* __Passo 4__:
+  + Calcular a projeção na fronteira da esfera.
+  + $(A^T \hspace{0.2 cm} D_K \hspace{0.2 cm} D_k \hspace{0.2 cm} A) \hspace{0.2 cm} d_x^k \hspace{0.2 cm} = \hspace{0.2 cm} c$
+  
+* __Passo 5__:
+  + Escalar a direção projetada $d_x^k$
+  + $d_v^k \hspace{0.2 cm} = \hspace{0.2 cm} - A \hspace{0.2 cm} d_x^k \hspace{0.2 cm}  [ \hspace{0.2 cm} (dv)_1, \hspace{0.2 cm} (dv)_2, \hspace{0.2 cm} ..., \hspace{0.2 cm} (dv)_m \hspace{0.2 cm} ]^T$
+  
+* __Passo 6__:
+  + Calcular o tamanho da caminhada na direção escolhida.
+  + $\alpha \hspace{0.2 cm} =  \hspace{0.2 cm} \gamma \hspace{0.2 cm} MAX \hspace{0.1 cm} ( \hspace{0.2 cm} \frac{v_i^k}{(d_v)_i} \hspace{0.2 cm} < \hspace{0.2 cm} 0 \hspace{0.2 cm})$
+  
+* __Passo 7__:
+  + Calcular novo ponto interior
+  + $x^{k + 1} \hspace{0.2 cm} = \hspace{0.2 cm} x^k - \alpha \hspace{0.1 cm} d_x^k$
+  
+* __Passo 8__:
+  + Verificar a parada das interações do algoritmo quando encontrar uma diferença entre a última solução e a anterior inferior à tolerância arbitrariamente definida.
+  + $\frac{|\hspace{0.2 cm} b^T \hspace{0.2 cm} Y^k \hspace{0.2 cm} - \hspace{0.2 cm} c^T \hspace{0.2 cm} x^k \hspace{0.2 cm}  |}{MAX \hspace{0.1 cm}( \hspace{0.2 cm}1 \hspace{0.2 cm} | \hspace{0.2 cm} c^T \hspace{0.2 cm} x^k \hspace{0.2 cm} )} < \epsilon$
+
+
+
+### __Exemplo__
+
+* Foi utilizado o mesmo problema do algoritmo Simplex para comparação das mecânicas e resultados.
+
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+![](imagens/pi_passos.png){width=295px}
+
+### __Convergência__
+
+* O mesmo gráfico em terceira dimensão foi utilizado para ilustrar a mecânica do algoritmo Pontos Interiores.
 
 
 ```{r warning=F, message=F, error=F, echo=F,  out.width='90%', fig.align='center'}
@@ -140,24 +206,53 @@ grid.raster(img)
 
 ```
 
+* O algoritmo inicia no ponto $x_0 = (1,1)$ com f(x, y) = 8.
 
-## __2. Diferença de Máximos__ 
+* 1º Caminha para o ponto __x = 2.89__ e y = __4.59__ com __f(x, y) = 31.65__.
 
-* A diferença entre os máximos de cada algoritmo para cada cenário foram calculados e os valores foram armazenados em matrizes $M_{(V, R)}$ para produção de mapas de calor que facilitassem a análise de padrões.
+* 2º Caminha para o ponto __x = 1.97__ e __y = 5.98__ com __f(x, y) = 35.84__.
 
-* Os mapas de calor foram desenhados com o número de variáveis no eixo horizontal e o número de restrições no eixo vertical.
+* 3º Caminha para o ponto __x = 2__ e __y = 5.99__ convergindo para __max f(x, y) = 35.97__.
 
-* Uma legenda com a escala gradiente nas cores azul, cinza e vermelho foi colocada abaixo do eixo vertical representado o eixo da terceira dimensão do gráfico que exibe a diferença de máximos na escala logarítmica.
+* O funcionamento do algoritmo animado pode ser visualizado no link:
+  + [\textcolor{blue}{https://colab.research.google.com}](https://colab.research.google.com/drive/1BOzxQ00lfWQLUeNCH3aON1aBCOi7Q87G?usp=sharing)
 
-* O fundo do gráfico foi colorido com a cor preta para representar os cenários não simulados devido a padronização escolhida.
+## __3. Simulação Simplex e Pontos Interiores__
 
-### __Método Simplex vs Pontos Interiores__
+* Para comparar a performance dos dois métodos no que diz respeito ao número de iterações e convergência de problemas com diferentes dimensões, foi desenvolvida uma simulação com __5000__ amostras no espaço de dimensões __[2, 100]__ variáveis e __[1, 100]__ restrições.
 
-   
-```{r warning=F, message=F, error=F, echo=F, fig.align='center',  out.width='95%'}
+### __Descrição__
+
+* As amostras foram aleatoriamente sorteadas nos intervalos __[0, 100]__ para as restrições, __[10, 100]__ para o lado direito das desigualdades e __[1, 100]__ para a função objetivo. Amostras com muito mais restrições do que variáveis apresentaram redundância e ou valor máximo muito próximo de zero, portanto a simulação foi desenhada com um número de restrições menor ou igual ao número de variáveis. A mesma amostra foi utilizada uma vez em cada método.
+
+### __Mapa de Calor Iterações Simplex__
+
+* O eixo __x__ foi utilizado para representar o número de variáveis do problema. No eixo __y__ foi representado o número de restrições do problema. O __gradiente__ das cores vermelho até azul foi utilizado para representar o número de iterações gastas para convergência. 
+
+```{r warning=F, message=F, error=F, echo=F, out.width='100%', fig.align='center'}
 
 # Carrega imagem
-img <- readPNG("imagens/simplex_sol.png")
+img <- readPNG("imagens/simplex_sim.png")
+
+# Imprime imagem
+grid.raster(img)
+
+```
+
+* Dimensões de até __30__ variáveis e __30__ restrições apresentaram custo inferior a __100__ iterações.
+
+* Dimensões de __30__ até __60__ apresentaram custo entre __100__ e __300__ iterações.
+
+* Dimensões superiores a __60__ apresentaram custo computacional de __300__ até __600__ iterações.
+
+### __Mapa de Calor Iterações Pontos Iteriores__
+
+* O gráfico do tipo mapa de calor foi produzido para ilustrar os resultados do número de iterações da simulação Pontos Interiores. No eixo __x__ foi representado o número de variáveis do problema. No eixo __y__ foi representado o número de restrições do problema. O __gradiente__ das cores vermelho até azul foi utilizado para representar o número de iterações gastas para convergência. 
+
+```{r warning=F, message=F, error=F, echo=F, out.width='100%', fig.align='center'}
+
+# Carrega imagem
+img <- readPNG("imagens/pi_sim.png")
 
 # Imprime imagem
 grid.raster(img)
@@ -165,81 +260,72 @@ grid.raster(img)
 ```
 
 
-### __Método Simplex Revisado vs Pontos Interiores__
+* Dimensões de até __30__ variáveis e __30__ restrições apresentaram custo inferior a __10__ iterações.
 
-   
-```{r warning=F, message=F, error=F, echo=F, fig.align='center',  out.width='95%'}
+* Dimensões de __30__ até __60__ apresentaram custo entre __10__ e __15__ iterações.
+
+* Dimensões superiores a __60__ apresentaram custo computacional de __15__ até __20__ iterações.
+
+### __Comparação de Iterações__
+
+* Dimensões de até __30__ variáveis e restrições, o Simplex apresentou custo de __5__ até __8__ vezes maior.
+
+* Dimensões de __30__ até __60__ variáveis e restrições, o Simplex apresentou custo de __8__ até __13__ vezes maior.
+
+* Dimensões de __60__ até __100__ variáveis e restrições, o Simplex apresentou custo de __20__ até __25__ vezes maior.
+
+* Pontos Interiores apresentou maior mistura de custos, com destaque para correlação positiva da iteração com aumento do número de variáveis. Simplex apresentou regiões mais bem definidas, com poucas observações discrepantes e correlação semelhante com as duas variáveis.
+
+
+### __Mapa de Calor Diferença de Máximos__
+
+* No eixo __x__ foi representado o número de variáveis do problema. No eixo __y__ foi representado o número de restrições do problema. O __gradiente__ das cores vermelho até azul foi utilizado para representar a diferença entre os máximos de cada método. 
+
+* O resultados das diferenças foram transformados para escala $log_{10}$ devido à distribuição assimétrica.
+
+
+```{r warning=F, message=F, error=F, echo=F, out.width='100%', fig.align='center'}
 
 # Carrega imagem
-img <- readPNG("imagens/simplex_sol.png")
+img <- readPNG("imagens/dif_pi_simplex_sim.png")
 
 # Imprime imagem
 grid.raster(img)
 
 ```
 
+* Dimensões com __1__ até __10__ restrições apresentaram mais diferenças na ordem de $[10^{-6}, 10^{-4}]$.
 
-## __3. Custo Computacional__ 
+* Dimensões superiores a __10__ restrições apresentaram dispersão aleatória de diferenças.
 
-* A diferença entre os máximos de gastas por cada algoritmo para cada cenário foram calculados e os valores foram armazenados em matrizes $M_{(V,R)}$ para produção de mapas de calor que facilitassem a análise de padrões.
+* A amplitude de diferenças apresentou variação $[10^{-11}, 10^{-4}]$.
 
-* Os mapas de calor foram desenhados com o número de variáveis no eixo horizontal e o número de restrições no eixo vertical.
-
-* Uma legenda com a escala gradiente nas cores azul, cinza e vermelho foi colocada abaixo do eixo vertical representado o eixo da terceira dimensão do gráfico que exibe a escala o custo computacional em segundos.
-
-* O fundo do gráfico foi colorido com a cor preta para representar os cenários não simulados devido a padronização escolhida.
-
-### __Método Simplex__
-
-   
-```{r warning=F, message=F, error=F, echo=F, fig.align='center',  out.width='95%'}
-
-# Carrega imagem
-img <- readPNG("imagens/simplex_sol.png")
-
-# Imprime imagem
-grid.raster(img)
-
-```
+* A magnitude entre a maior e a menor diferença foi da ordem de $10^{-7}$.
 
 
-### __Método Simplex Revisado__
-
-   
-```{r warning=F, message=F, error=F, echo=F, fig.align='center',  out.width='95%'}
-
-# Carrega imagem
-img <- readPNG("imagens/simplex_sol.png")
-
-# Imprime imagem
-grid.raster(img)
-
-```
+### __Comparação de Máximos__
 
 
-### __Método Pontos Interiores__
+* O algoritmo Simplex apresentou máximos superiores na ordem de até $10^{-4}$ em relação a performance do algoritmo de Pontos Interiores.
 
+* A maioria, ou 90% das diferenças encontradas, foram iguais ou inferiores a $10^{-6}$. Tal fato indica que apenas em problemas que demandam extrema precisão científica o máximo encontrado pelo algoritmo de Pontos Interiores poderia ser considerado um erro na precisão da solução.
 
-```{r warning=F, message=F, error=F, echo=F,  out.width='90%', fig.align='center'}
-
-# Carrega imagem
-img <- readPNG("imagens/pi_sol.png")
-
-# Imprime imagem
-grid.raster(img)
-
-```
-
-
-## __4. Conclusões__
-
-
-
-
-## __5. Referências__
+## __6. Referências__
 
 * Dantzig, George Bernard, "The Simplex Method" Santa Monica, CA: RAND Corporation, 1956. 
 
 * A. Vannelli, "Teaching large-scale optimization by an interior point approach" in IEEE Transactions on Education, vol. 36, no. 1, pp. 204-209, Feb. 1993, doi: 10.1109/13.204847.
+
+* [\textcolor{blue}{plotly.graph.objects.Figure}](https://plotly.com/python-api-reference/generated/plotly.graph_objects.Figure.html)
+
+* [\textcolor{blue}{optimize.linprog-simplex}](https://docs.scipy.org/doc/scipy/reference/optimize.linprog-simplex.html)
+
+* [\textcolor{blue}{optimize.linprog-interior-point}](https://docs.scipy.org/doc/scipy/reference/optimize.linprog-interior-point.html)
+
+* [\textcolor{blue}{seaborn.heatmap}](https://seaborn.pydata.org/generated/seaborn.heatmap.html)
+
+* [\textcolor{blue}{simplex.method.lpp}](http://reshmat.ru/simplex_method_lpp.html?maxOrMin=max&l1=3&l2=5&a11=3&a12=2&z1=1&b1=18&a21=1&a22=0&z2=1&b2=4&a31=0&a32=1&z3=1&b3=6&step=2&sizeA=2&sizeB=3#b)
+
+
 
 

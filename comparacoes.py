@@ -61,7 +61,7 @@ def optimizar(V, R):
 # ----------------------------------------------------------------------------------------------------------
 
 # Tamanhodas simulacao
-V = 1000
+V = 100
 
 # Declara variaveis
 pi_i = np.zeros(shape=(V, V))
@@ -78,7 +78,7 @@ for v in np.arange(2, V):
   r = 1
   while(r <= v):
     s_i[v, r], s_f[v, r], s_c[v, r], pi_i[v, r], pi_f[v, r], pi_c[v, r], rs_i[v, r], rs_f[v, r], rs_c[v, r] = optimizar(v, r)
-    j += 1
+    r += 1
 
 # ----------------------------------------------------------------------------------------------------------
 
@@ -105,10 +105,10 @@ ax = sns.heatmap(df_simplex,
                            "label": "Iterações"})
 
 # Define ticks e cofigurações dos eixos
-ax.set_xticks(np.array([2, 100, 200, 300, 400, 500, 600, 700, 800, 900, 1000]))
-ax.set_xticklabels(np.array([2, 100, 200, 300, 400, 500, 600, 700, 800, 900, 1000]))
-ax.set_yticks(np.array([1, 100, 200, 300, 400, 500, 600, 700, 800, 900, 1000]))
-ax.set_yticklabels(np.array([1, 100, 200, 300, 400, 500, 600, 700, 800, 900, 1000]))
+ax.set_xticks(np.array([2, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100]))
+ax.set_xticklabels(np.array([2, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100]))
+ax.set_yticks(np.array([1, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100]))
+ax.set_yticklabels(np.array([1, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100]))
 ax.invert_yaxis()
 
 # Altera rótulos dos eixos
@@ -126,7 +126,7 @@ ax.set_facecolor("black")
 # Adiciona grids ao grafico e define limites
 plt.grid()
 plt.xlim(2,)
-plt.ylim(1,1000)
+plt.ylim(1,100)
 
 # Desenha gráfico
 plt.show()
@@ -210,7 +210,7 @@ ax = sns.heatmap(df_pi,
 # Define ticks e cofigurações dos eixos
 ax.set_xticks(np.array([2, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100]))
 ax.set_xticklabels(np.array([2, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100]))
-ax.set_yticks(np.array([2, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100]))
+ax.set_yticks(np.array([1, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100]))
 ax.set_yticklabels(np.array([1, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100]))
 ax.invert_yaxis()
 
@@ -304,10 +304,9 @@ sns.set(rc={'figure.figsize':(8, 8)}, font_scale=1.3)
 df_dif_pi_rs = np.abs(rs_f.transpose() - pi_f.transpose())
 df_dif_pi_rs[df_dif_pi_rs == 0] = np.nan
 df_dif_pi_rs = np.round(np.log10(df_dif_pi_rs), 6) 
-df_dif_pi_rs[np.isnan(df_dif_pi_rs)] = 0
 
 # Define heatmap
-ax = sns.heatmap(df_diferenca,
+ax = sns.heatmap(df_dif_pi_rs,
                  cmap='coolwarm',
                  cbar_kws={"orientation": "horizontal",
                            "shrink": 0.70, 
@@ -445,9 +444,6 @@ plt.ylim(1,100)
 # Desenha gráfico
 plt.show()
 
-
-
-
 # ----------------------------------------------------------------------------------------------------------
 
 # Gráfico mapa de calor custo computacional Pontos interiores
@@ -462,7 +458,7 @@ sns.set(rc={'figure.figsize':(8, 8)}, font_scale=1.3)
 
 # Declara array simplex simulações
 df_cuto_pi = pi_c.transpose()
-df_cuto_pi[df_cuto_pi == 0] = np.nan
+
 
 # Define heatmap
 ax = sns.heatmap(df_cuto_pi,

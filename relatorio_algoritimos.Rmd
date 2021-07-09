@@ -1,7 +1,7 @@
 ---
 title: "Simplex e Pontos Interiores"
 author: "Pedro Loes e Felipe Sadock"
-date: "20/06/2021"
+date: "09/07/2021"
 output: pdf_document
 ---
 
@@ -35,7 +35,7 @@ grid.raster(img)
 
 ## __0. Introdução__
 
-* O projeto foi dividido em 4 etapas que objetivam explicar e explorar os métodos de Otimização Simplex e Pontos Interiorescomparando suas performances.
+* O projeto foi dividido em 4 etapas que objetivam explicar e explorar os métodos de Otimização Simplex e Pontos Interiores comparando suas performances.
   1. Método Simplex
     * Desenvolvimento de uma explicação geral, descrição do funcionamento matemático do método, exemplo simples resolvido passo a passo e mecânica da convergência ilustrada graficamente.
   2. Método Pontos Interiores
@@ -58,7 +58,7 @@ grid.raster(img)
 
 * Uma variável é chamada de variável básica de uma equação se entrar nesta equação com um coeficiente de um e não entrar em outro sistema de equações. Se cada equação tem uma variável básica, pode-se dizer que o sistema tem uma base.
 
-### Funcionamento
+### __Funcionamento__
 
 * Para alternar as bases são usadas tabelas. Cada linha da tabela é equivalente a uma equação do sistema. O método consiste em escolher a coluna com um coeficiente positivo de forma iterativa para obter um valor da função objetivo que não seja inferior aos seus antecessores.
 
@@ -178,7 +178,7 @@ grid.raster(img)
   + $x^{k + 1} \hspace{0.2 cm} = \hspace{0.2 cm} x^k - \alpha \hspace{0.1 cm} d_x^k$
   
 * __Passo 8__:
-  + Verificar parada das interações do algoritmo quando encontrar uma diferença entre a última solução e a anterior inferior à tolerância arbitrariamente definida.
+  + Verificar a parada das interações do algoritmo quando encontrar uma diferença entre a última solução e a anterior inferior à tolerância arbitrariamente definida.
   + $\frac{|\hspace{0.2 cm} b^T \hspace{0.2 cm} Y^k \hspace{0.2 cm} - \hspace{0.2 cm} c^T \hspace{0.2 cm} x^k \hspace{0.2 cm}  |}{MAX \hspace{0.1 cm}( \hspace{0.2 cm}1 \hspace{0.2 cm} | \hspace{0.2 cm} c^T \hspace{0.2 cm} x^k \hspace{0.2 cm} )} < \epsilon$
 
 
@@ -219,11 +219,55 @@ grid.raster(img)
 
 ## __3. Simulação Simplex e Pontos Interiores__
 
-* Para comparar a performance dos dois métodos no que diz respeito ao número de iterações e convergência de problemas com diferentes dimensões, foi desenvolvido uma simulação com __5000__ amostras no espaço de dimensões __[2, 100]__ variáveis e __[1, 100]__ restrições.
+* A função optimizar foi construída para amostrar problemas com __V__ variáveis, $V \in [2, 100]$ e __R__ restrições, $R \in [1, 100]$, definir limites das variáveis e executar os 2 métodos de optimização. Quatro matrizes de dimensão $M_{100, 100}$ foram geradas para armazenar os resultados das 5000 simulações. Dois laços foram utilizados para combinar variáveis e restrições. Para padronizar o experimento foi adotado o critério de número de restrições menor ou igual ao número de variáveis. Por exemplo, simulações com 2 variáveis e 100 restrições não foram consideradas devido à redundância de cortes aleatórios no politopo.
 
-### __Descrição__
+* Passos da Simulação:
+  1. Sorteia amostra.
+  3. Executa otimizações.
+  4. Recupera resultados em matrizes $M_{(V,V)}$
+  
+```{python, warning=F, message=F, error=F, eval=F}
+# Define função optimizar 
+def optimizar(V, R):
+  
+  # Declara  amostra aleatoria de problema LP
+  A = np.random.randint(1000, size=(R * V)).reshape((R, V))
+  b = np.random.randint(1000, 10000, size=(R))
+  c = np.random.randint(1, 1000, size=(V)) * -1
+  limites_x = [(0, superior) for superior in np.random.randint(1, 100, size = (V))]
+  
+  # Executa otimizações
+  s = linprog(c, A_ub=A, b_ub=b, bounds=(limites_x),  method='simplex')
+  pi = linprog(c, A_ub=A, b_ub=b, bounds=(limites_x),  method='interior-point')
+  
+  # Retorna resutados
+  return(s.nit, -1 * s.fun, pi.nit, -1 * pi.fun)
+  
+# Declara matrizes de resultados
+pi_i = np.zeros(shape = (V, V))
+pi_f = np.zeros(shape = (V, V))
+s_i = np.zeros(shape = (V, V))
+s_f = np.zeros(shape = (V, V))
 
-* As amostras foram aleatoriamente sorteadas nos intervalos __[0, 100]__ para as restrições, __[10, 100]__ para o lado direito das desigualdades e __[1, 100]__ para a função objetivo. Amostras com muito mais restrições do que variáveis apresentaram redundância e ou valor máximo muito próximo de zero, portanto a simulação foi desenhada com um número de restrições menor ou igual ao número de variáveis. A mesma amostra foi utilizada uma vez em cada método.
+# Declara número de variáveis para simulação
+V = 100
+
+# Laço para simulação de variáveis e restrições
+for v in np.arange(2, V):
+  
+  # Declara contator de restrições
+  r = 1
+  
+  # Laço para restrições menores que variáveis
+  while(r <= v):
+    
+    # Popula matrizes de resultados
+    s_i[v, r], s_f[v, r], pi_i[v, r], pi_f[v, r]  = optimizar(v, r)
+    
+    # Incrementa contador de restrições
+    r += 1
+```
+ 
 
 ### __Mapa de Calor Iterações Simplex__
 
@@ -308,7 +352,7 @@ grid.raster(img)
 
 * O algoritmo Simplex apresentou máximos superiores na ordem de até $10^{-4}$ em relação a performance do algoritmo de Pontos Iteriores.
 
-* A maioria, ou 90% das diferenças encontradas, foram iguais ou inferiores $10^{-6}$. Tal fato indica que apenas em problemas que demandam extrema precisão científica o máximo encontrado pelo algoritmo de Pontos Interiores poderia ser considerado um erro na precisão da solução.
+* A maioria, ou 90% das diferenças encontradas, foram iguais ou inferiores a $10^{-6}$. Tal fato indica que apenas em problemas que demandam extrema precisão científica o máximo encontrado pelo algoritmo de Pontos Interiores poderia ser considerado um erro na precisão da solução.
 
 ## __6. Referências__
 
