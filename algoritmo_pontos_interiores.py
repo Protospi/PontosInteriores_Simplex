@@ -23,8 +23,23 @@ from plotly.offline import iplot, init_notebook_mode
 # Define função pontos_interiores
 def pontos_interiores(A, b, c, x0, gamma, tol):
   
+  # Gera matriz identidade
+  identidade = np.identity(A.shape[1])
+  
+  # Declara dimensoes
+  a = A.shape[0]
+  n = A.shape[1]
+  
+  # Concatena ranges
+  A = np.concatenate((A, identidade ), axis = 0 )
+  A = np.concatenate((A, identidade * -1 ), axis = 0 )
+  
+  # Concatena restricao superior
+  b = np.concatenate((b, np.repeat(100, n )), axis = None )
+  b = np.concatenate((b, np.repeat(0, n ) ), axis = None )
+  
   # Define resposta Máximos
-  respostas = np.zeros(51)
+  respostas = np.zeros(200)
   
   # Define nomes
   nomes = ["X" + str(n + 1) for n in  range( A.shape[1] ) ] + ["Maximo"]
@@ -265,4 +280,16 @@ fig.update_layout(updatemenus=[dict(type="buttons",
 iplot(fig)
 
 # ------------------------------------------------------------------------------------------------------------
+
+
+
+
+
+
+
+
+
+
+
+
 

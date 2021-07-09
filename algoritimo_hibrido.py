@@ -25,29 +25,31 @@ import matplotlib.pyplot as plt
 # Define função método hibrido
 def hibrido(n, a):
   
-  # Declara matriz de restrições
-  A = np.random.randint(100, size=(a * n)).reshape((a, n))
-
+  # Declara matriz A
+  A = np.zeros(shape=(a, a))
+  
+  # Laço para popular matriz A
+  for l in range(A.shape[0]):
+    A[l,:]  = np.random.choice(np.arange(1, 6), size = A.shape[1])
+        
   # Declara vetor resposta coeficiente
   b = np.random.randint(10, 100, size=(a))
-
+  
   # Declara função objetivo
-  c = np.random.randint(1, 100, size=(n)) * -1
-
+  c = np.random.randint(1, 10, size=(n)) * -1
+  
+  # Declara vetor aleatorio
+  aleatorio = np.random.randint(100,150, size=(n))
+  
   # Define limites das variáveis
-  res = [(0, superior) for superior in np.random.randint(1,50, size=(n))]
+  res = [(0, 1000) for superior in aleatorio]
   
-  # Executa optimização linprog pontos iteriores
-  sol1 = linprog(c, A_ub=A, b_ub=b, bounds=(res),  method='interior-point', options= {'tol' : 0.1} )
+  # Calcula intercessao de planos
+  x_novo = np.linalg.solve(A, b)
   
-  # Declara distancias
-  distancias = np.zeros(A.shape[0])
+  sol2 = linprog(c, A_ub=A, b_ub=b, bounds=(res),  method='revised simplex', x0 = x_novo)
   
-  # Executa optimização linprog simplex
-  sol2 = linprog(c, A_ub=A, b_ub=b, bounds=(res),  method='revised simplex', x0 = np.ceil(sol1.x))
-  
-  # Retorno da função
-  return(sol1.nit + sol2.nit)
+  sol3 = linprog(c, A_ub=A, b_ub=b, bounds=(res),  method='revised simplex')
 
 # ----------------------------------------------------------------------------------------------------------
 
@@ -117,33 +119,34 @@ plt.show()
 
 # ----------------------------------------------------------------------------------------------------------
 
-a = 10
+a = 3
 
-n = 10
+n = 3
 
 # Declara matriz A
 A = np.zeros(shape=(a, a))
 
-# Vetores aleatorios
-aleatorio = np.random.choice(np.arange(1, 11), size = A.shape[0], replace = False)
-
 # Laço para popular matriz A
 for l in range(A.shape[0]):
-  for k in range(A.shape[1]):
-    if k == aleatorio[l]-1: 
-      A[l,k] = aleatorio[l]
+  A[l,:]  = np.random.choice(np.arange(1, 11), size = A.shape[1], replace = False)
       
 # Declara vetor resposta coeficiente
-b = np.random.randint(10, 20, size=(a))
+b = np.random.randint(50, 100, size=(a))
 
 # Declara função objetivo
 c = np.random.randint(1, 10, size=(n)) * -1
 
+# Declara vetor aleatorio
+aleatorio = np.random.randint(10,50, size=(n))
+
+# Declara vetor aleatorio
+maximos = np.matmul(A, aleatorio )
+
 # Define limites das variáveis
-res = [(0, superior) for superior in np.random.randint(10,50, size=(n))]
+res = [(0, superior) for superior in aleatorio]
 
 # Executa optimização linprog pontos iteriores
-sol1 = linprog(c, A_ub=A, b_ub=b,  method='interior-point', options= {'tol' : 0.1} )
+sol1 = linprog(c, A_ub=A, b_ub=b, bounds=(res),  method='interior-point', options= {'tol' : 0.1} )
 
 # Declara distancias
 distancias = np.zeros(A.shape[0])
@@ -166,14 +169,15 @@ A1 = np.stack([A[ordem[0], :],
                A[ordem[1], :]])
                
 # Declara b
-b1 = np.array([b[ordem[1]], b[ordem[2]]])
+b1 = np.array([b[ordem[0]], b[ordem[1]]])
 
-x_novo = np.linalg.solve(A, b)
+# Calcula intercessao de planos
+x_novo = np.linalg.solve(A1, b1) 
 
 # Executa optimização linprog simplex
 sol2 = linprog(c, A_ub=A, b_ub=b, bounds=(res),  method='revised simplex', x0 = x_novo)
 
-sol3 = linprog(c, A_ub=A, b_ub=b, bounds=(res),  method='revised simplex')
+sol3 = linprog(c, A_ub=A, b_ub=b, bounds=(res),  method='simplex')
 
 print("----------------------------------------------")
 
@@ -191,6 +195,117 @@ print("It = ", sol3.nit)
 
 
 print("----------------------------------------------")
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+a = 10
+
+n = 10
+
+# Declara matriz A
+A = np.zeros(shape=(a, a))
+
+# Laço para popular matriz A
+for l in range(A.shape[0]):
+  A[l,:]  = np.random.choice(np.arange(1, 6), size = A.shape[1])
+      
+# Declara vetor resposta coeficiente
+b = np.random.randint(10, 100, size=(a))
+
+# Declara função objetivo
+c = np.random.randint(1, 10, size=(n)) * -1
+
+# Declara vetor aleatorio
+aleatorio = np.random.randint(100,150, size=(n))
+
+# Define limites das variáveis
+res = [(0, 1000) for superior in aleatorio]
+
+# Calcula intercessao de planos
+x_novo = np.linalg.solve(A, b)
+
+sol2 = linprog(c, A_ub=A, b_ub=b, bounds=(res),  method='revised simplex', x0 = x_novo)
+
+sol3 = linprog(c, A_ub=A, b_ub=b, bounds=(res),  method='revised simplex')
+
+
+print("----------------------------------------------")
+
+# Retorno da função Hibrido
+print("F = ", sol2.fun)
+print("It = ", sol2.nit)
+
+print("----------------------------------------------")
+
+# Retorno da função Simplex
+print("F = ", sol3.fun)
+print("It = ", sol3.nit)
+
+print("----------------------------------------------")
+
+
+
+
+# Declara contador
+contador = 0
+
+# Declara tamanho da matriz de condicionamento
+a = 5
+
+# Declara numero de dimensoes
+n = 5
+
+
+for i in range(100):
+  
+  # Declara matriz A
+  A = np.zeros(shape=(a, a))
+  
+  # Laço para popular matriz A
+  for l in range(A.shape[0]):
+    A[l,:]  = np.random.choice(np.arange(1, 6), size = A.shape[1])
+   
+  # Declara vetor resposta coeficiente
+  b = np.random.randint(10, 100, size=(a))
+  
+  # Declara função objetivo
+  c = np.random.randint(1, 10, size=(n)) * -1
+  
+  # Define limites das variáveis
+  res = [ (0, superior) for superior in np.repeat(10, n) ] 
+  
+  # Calcula intercessao de planos
+  x_novo = np.linalg.solve(A, b)
+  
+  sol2 = linprog(c, A_ub=A, b_ub=b, bounds=(res),  method='revised simplex', x0 = x_novo)
+  
+  sol3 = linprog(c, A_ub=A, b_ub=b, bounds=(res),  method='revised simplex')
+  
+  if np.round(sol2.fun, 10) == np.round(sol3.fun, 10):
+    contador += 1
+
+
+
+
+
 
 
 
@@ -281,6 +396,82 @@ print(sol3.fun, sol3.nit, sol3.x)
 
 
 
+# ----------------------------------------------------------------------------------------------------------
+
+# Testes
+
+# ----------------------------------------------------------------------------------------------------------
+
+# Declara matriz de coeficientes das restrições lado esquerdo das desigualdades
+A = np.array([[3,  2],
+              [1,  0],
+              [0,  1]]) 
+
+# Declara vetor de coeficientes das restrições lado direito das desigualdades
+b = np.array([18, 4, 6]) 
+
+# Declara função objetivo
+c = np.array([-3, -5])
+
+# Resolve com Simplex com Ponto inicial
+simplex = linprog(c, A_ub=A, b_ub=b,  method='revised simplex')
+
+# # Ilumina com Simplex
+pi = linprog(c, A_ub=A, b_ub=b,  method='interior-point', options= {"tol": 0.2})
+
+# Limites inferiores de x
+x_inf = np.ceil(pi.x)
+
+# Define limites das variáveis
+res = [(inferior, None) for inferior in x_inf]
+
+# Reesolve com Simplex
+hibrido = linprog(c, A_ub=A, bounds=res,  b_ub=b,  method='revised simplex')
+
+# ----------------------------------------------------------------------------------------------------------
+
+a = 3
+
+n = 3
+
+# Declara matriz A
+A = np.zeros(shape=(a, n))
+
+# Laço para popular matriz A
+for l in range(A.shape[0]):
+  A[l,:]  = np.random.choice(np.arange(1, 11), size = A.shape[1])
+      
+# Declara vetor resposta coeficiente
+b = np.random.randint(0, 100, size=(a))
+
+# Declara função objetivo
+c = np.random.randint(1, 10, size=(n)) * -1
+
+# Define limites das variáveis para simplex
+res_1 = [(res, 10000) for res in np.zeros(n)]
+
+# # Ilumina com Simplex
+pi = linprog(c, A_ub=A, b_ub=b, bounds=res_1,  method='interior-point')
+
+# Limite inferior de x
+x_inferior = np.floor(pi.x)
+
+# Resolve com Simplex com Ponto inicial
+simplex = linprog(c, A_ub=A, b_ub=b, bounds=res_1,  method='simplex')
+
+# Define limites das variáveis para hibrido
+res_2 = [(inferior, 10000) for inferior in x_inferior]
+
+# Reesolve com Simplex
+hibrido = linprog(c, A_ub=A, bounds=res_2,  b_ub=b,  method='simplex')
+
+# Imprime resultados
+print("X = ", simplex.x)
+print("Max = ", simplex.fun)
+print("Iter = ", simplex.nit)
+print("X = ", hibrido.x)
+print("Max = ", hibrido.fun)
+print("Iter = ", hibrido.nit)
 
 
 
@@ -289,5 +480,49 @@ print(sol3.fun, sol3.nit, sol3.x)
 
 
 
+
+
+
+
+
+a = 50
+
+n = 50
+
+# Declara matriz A
+A = np.zeros(shape=(a, n))
+
+# Laço para popular matriz A
+for l in range(A.shape[0]):
+  A[l,:]  = np.random.choice(np.arange(1, 11), size = A.shape[1])
+      
+# Declara vetor resposta coeficiente
+b = np.random.randint(10, 100, size=(a))
+
+# Declara função objetivo
+c = np.random.randint(1, 10, size=(n)) 
+
+
+# Define limites das variáveis para simplex
+res_1 = [(res, 100) for res in np.zeros(n)]
+
+linprog(c * -1, A_ub=A, b_ub=b, bounds=res_1,  method='simplex')
+
+
+pi = pontos_interiores(A, b, c, np.repeat(0.0001, n), 0.999999, 0.2)
+
+
+# Limite inferior de x
+x_inferior = np.floor( pi[ pi.shape[0] - 2: pi.shape[0] - 1 ] )
+
+# calcula maximo
+max_arg = np.argmax(x_inferior.iloc[:,0:-1])
+
+
+# Define limites das variáveis para hibrido
+res_1[max_arg] = (int(x_inferior.iloc[:,max_arg].values), 100)
+
+
+linprog(c * -1, A_ub=A, b_ub=b, bounds=res_1,  method='simplex')
 
 
