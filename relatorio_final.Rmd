@@ -22,7 +22,7 @@ text-align: justify}
 ```{r warning=F, message=F, error=F, echo=F, fig.align='center',  out.width='35%'}
 
 # Carrega imagem
-img <- readPNG("imagens/alvo.png")
+img <- readPNG("imagens/alvo3.png")
 
 # Imprime imagem
 grid.raster(img)
@@ -223,7 +223,7 @@ grid.raster(img)
 
 ### __Descrição__
 
-* As amostras foram aleatoriamente sorteadas nos intervalos __[0, 100]__ para as restrições, __[10, 100]__ para o lado direito das desigualdades e __[1, 100]__ para a função objetivo. Amostras com muito mais restrições do que variáveis apresentaram redundância e ou valor máximo muito próximo de zero, portanto a simulação foi desenhada com um número de restrições menor ou igual ao número de variáveis. A mesma amostra foi utilizada uma vez em cada método.
+* As variáveis das amostras foram aleatoriamente sorteadas nos intervalos __[0, 100]__ para as restrições, __[10, 100]__ para o lado direito das desigualdades e __[1, 100]__ para a função objetivo. Amostras com muito mais restrições do que variáveis apresentaram redundância e ou valor máximo muito próximo de zero, portanto a simulação foi desenhada com um número de restrições menor ou igual ao número de variáveis. A mesma amostra foi utilizada uma vez em cada método.
 
 ### __Mapa de Calor Iterações Simplex__
 
